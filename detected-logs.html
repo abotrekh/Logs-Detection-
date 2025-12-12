@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detected Logs</title>
+  <style>
+    :root {
+      --bg: #050b18;
+      --panel: #0c152b;
+      --card: #0b1428;
+      --text: #e8edf7;
+      --muted: #9fb2cc;
+      --accent: #10b981;
+      --accent-2: #34d399;
+      --border: #1c2b45;
+      --success: #4ade80;
+      --warn: #eab308;
+      --danger: #fb7185;
+      --glow: rgba(16, 185, 129, 0.18);
+      --gradient-1: rgba(16,185,129,0.18);
+      --gradient-2: rgba(52,211,153,0.16);
+      --shadow-light: rgba(0,0,0,0.18);
+      --shadow-medium: rgba(0,0,0,0.24);
+      --chip-hover: rgba(16,185,129,0.08);
+      --chip-active: rgba(16,185,129,0.12);
+    }
+    .light {
+      --bg: #f8f9fa;
+      --panel: #f1f3f4;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #5f6368;
+      --accent: #10b981;
+      --accent-2: #34d399;
+      --border: #e8eaed;
+      --success: #34a853;
+      --warn: #eab308;
+      --danger: #ea4335;
+      --glow: rgba(16, 185, 129, 0.1);
+      --gradient-1: rgba(16,185,129,0.12);
+      --gradient-2: rgba(52,211,153,0.10);
+      --shadow-light: rgba(0,0,0,0.08);
+      --shadow-medium: rgba(0,0,0,0.10);
+      --chip-hover: rgba(16,185,129,0.06);
+      --chip-active: rgba(16,185,129,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 18% 20%, var(--gradient-1), transparent 32%),
+        radial-gradient(circle at 80% 10%, var(--gradient-2), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 26px;
+      position: relative;
+      z-index: 1;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 22px;
+      gap: 10px;
+    }
+    .nav {
+      display: flex;
+      gap: 18px;
+      font-weight: 600;
+      color: var(--muted);
+      align-items: center;
+    }
+    .nav a {
+      color: inherit;
+      text-decoration: none;
+      padding-bottom: 6px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .nav a.active {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .user-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      color: #1a1a1a;
+      font-weight: 800;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toggle {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 24px var(--shadow-light);
+    }
+    .toggle:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 26px;
+    }
+    .subhead {
+      color: var(--muted);
+      margin: 0 0 16px 0;
+      font-size: 14px;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .search {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .search:focus { outline: 1px solid var(--accent); }
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    }
+    .chip:hover { border-color: var(--accent); transform: translateY(-1px); background: var(--chip-hover); }
+    .chip.active { border-color: var(--accent); background: var(--chip-active); color: var(--accent); }
+
+    .link-btn {
+      text-decoration: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    }
+    .link-btn:hover { border-color: var(--accent); background: var(--panel); transform: translateY(-1px); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 16px 48px var(--shadow-medium);
+      position: relative;
+      overflow: hidden;
+    }
+    .log-lines {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .log-lines .err { color: #f87171; }
+    .log-lines .info { color: var(--accent); }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .tag-pill {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .gradeA { background: var(--success); }
+    .gradeB { background: var(--warn); }
+    .gradeC { background: var(--danger); }
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .btn-ghost {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: transparent;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .btn-ghost:hover { background: var(--accent); color: #1a1a1a; }
+
+    @media (max-width: 640px) {
+      .shell { padding: 18px; }
+      .filters { flex-direction: column; align-items: stretch; }
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 99;
+      backdrop-filter: blur(6px);
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      background: linear-gradient(160deg, var(--panel), var(--card));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      width: min(540px, 100%);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.32);
+      color: var(--text);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .modal-close:hover { border-color: var(--accent); color: var(--accent); }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 12px 0 8px;
+    }
+    .profile-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .profile-item .label { color: var(--muted); font-size: 12px; display: block; margin-bottom: 4px; }
+    .log-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 4px;
+    }
+    .logs {
+      margin-top: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      max-height: 240px;
+      overflow: auto;
+    }
+    .log-row {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .log-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div></div>
+      <div class="header-actions">
+        <a class="link-btn" href="Untitled-1.html">Back to Dashboard</a>
+        <button class="toggle" id="themeToggle">Toggle Theme</button>
+        <div class="user-pill">!</div>
+      </div>
+    </div>
+
+    <h1>Suspicious Logs Detected</h1>
+    <p class="subhead">Live ingest from API/Auth services · auto-refreshed view</p>
+    <div class="filters">
+      <input id="searchInput" class="search" type="search" placeholder="Search logs, IP, location..." />
+      <button class="btn" id="searchBtn">Search</button>
+      <button class="btn" id="filterToggle">Filters</button>
+    </div>
+    <div class="chips" id="chipBar">
+      <div class="chip" data-chip="A">Threat A</div>
+      <div class="chip" data-chip="B">Threat B</div>
+      <div class="chip" data-chip="C">Threat C</div>
+      <div class="chip" data-chip="AuthService">AuthService</div>
+      <div class="chip" data-chip="API">API</div>
+      <div class="chip" data-chip="Jeddah">Jeddah</div>
+    </div>
+
+    <div class="grid" id="logGrid"></div>
+  </div>
+
+  <div class="modal" id="logModal">
+    <div class="modal-card">
+      <button class="modal-close" id="closeLogModal">Close</button>
+      <h2 style="margin:0 0 6px 0;" id="logTitle">Log Details</h2>
+      <div class="subhead" id="logSub">Detailed information</div>
+      <div class="profile-grid" id="logProfileGrid"></div>
+      <div class="log-chips" id="logChips"></div>
+      <div class="logs" id="logDetails"></div>
+    </div>
+  </div>
+
+  <script>
+    const THEME_KEY = "dashboard-theme";
+    (function applySavedTheme() {
+      if (localStorage.getItem(THEME_KEY) === "light") {
+        document.body.classList.add("light");
+      }
+    })();
+
+    const logs = [
+      { grade: "A", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:03:17", svc: "API", status: "Failed to fetch data from endpoint" },
+      { grade: "B", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:03:10", svc: "AuthService", status: "User login success" },
+      { grade: "C", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:05:01", svc: "API", status: "Timeout contacting upstream" },
+      { grade: "D", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:06:44", svc: "AuthService", status: "Password spray detected" },
+      { grade: "B", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:07:12", svc: "API", status: "Rate limit exceeded" },
+      { grade: "C", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:09:22", svc: "AuthService", status: "MFA challenge failed" },
+      { grade: "A", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:10:55", svc: "API", status: "Failed to fetch data from endpoint" },
+      { grade: "B", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:11:37", svc: "AuthService", status: "User login success" },
+      { grade: "C", city: "Jeddah", code: "1119900293", time: "2025-11-29 18:12:41", svc: "API", status: "Unexpected payload shape" }
+    ];
+
+    const errLine = "> 2025-11-29 18:03:17 ERROR [API] Failed to fetch data from endpoint";
+    const infoLine = "> 2025-11-29 18:03:10 INFO [AuthService] User login success:";
+
+    const grid = document.getElementById("logGrid");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const chips = document.querySelectorAll("#chipBar .chip");
+    const themeToggle = document.getElementById("themeToggle");
+    const filterToggle = document.getElementById("filterToggle");
+    const chipBar = document.getElementById("chipBar");
+
+    let activeChip = null;
+    const colorMap = {
+      A: "gradeA",
+      B: "gradeB",
+      C: "gradeC",
+      D: "gradeC"
+    };
+
+    function render(list) {
+      grid.innerHTML = "";
+      list.forEach(({ grade, city, code, time, svc, status }) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const head = document.createElement("div");
+        head.className = "card-head";
+        head.innerHTML = `<span>${time}</span><span class="tag-pill">${svc}</span>`;
+        card.appendChild(head);
+
+        const lines = document.createElement("div");
+        lines.className = "log-lines";
+        const isError = grade === "C" || grade === "D";
+        const info = `> ${time} INFO [${svc}] ${status}`;
+        const err = `> ${time} ERROR [${svc}] ${status}`;
+        lines.innerHTML = isError
+          ? `<span class="err">${err}</span>`
+          : `<span class="info">${info}</span>`;
+        card.appendChild(lines);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const threat = document.createElement("div");
+        threat.className = "pill";
+        threat.innerHTML = `<span class="dot ${colorMap[grade] || "gradeC"}"></span> Threat Level ( ${grade} )`;
+        meta.appendChild(threat);
+
+        const location = document.createElement("div");
+        location.className = "small";
+        location.textContent = city;
+        meta.appendChild(location);
+
+        const codeDiv = document.createElement("div");
+        codeDiv.className = "small";
+        codeDiv.textContent = code;
+        meta.appendChild(codeDiv);
+        card.appendChild(meta);
+
+        const footer = document.createElement("div");
+        footer.className = "footer-row";
+        const spacer = document.createElement("div");
+        spacer.className = "small";
+        spacer.textContent = "Raw log";
+        const btn = document.createElement("button");
+        btn.className = "btn-ghost";
+        btn.textContent = "Details";
+        footer.appendChild(spacer);
+        footer.appendChild(btn);
+        card.appendChild(footer);
+
+        grid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const term = searchInput.value.trim().toLowerCase();
+      const chip = activeChip ? activeChip.toLowerCase() : null;
+      const filtered = logs.filter(({ grade, city, code, time, svc, status }) => {
+        const hay = `${grade} ${city} ${code} ${time} ${svc} ${status}`.toLowerCase();
+        const matchesTerm = term === "" || hay.includes(term);
+        const matchesChip = !chip ||
+          grade.toLowerCase() === chip ||
+          svc.toLowerCase() === chip ||
+          city.toLowerCase() === chip ||
+          status.toLowerCase().includes(chip);
+        return matchesTerm && matchesChip;
+      });
+      render(filtered);
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+    searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") applyFilters(); });
+    searchBtn.addEventListener("click", applyFilters);
+    filterToggle.addEventListener("click", () => {
+      chipBar.style.display = chipBar.style.display === "none" ? "flex" : "none";
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        if (activeChip === chip.dataset.chip) {
+          activeChip = null;
+          chips.forEach(c => c.classList.remove("active"));
+        } else {
+          activeChip = chip.dataset.chip;
+          chips.forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+        }
+        applyFilters();
+      });
+    });
+
+    themeToggle.addEventListener("click", () => {
+      const isLight = document.body.classList.toggle("light");
+      localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+      applyFilters();
+    });
+
+    render(logs);
+
+    // Modal functionality
+    const logModal = document.getElementById("logModal");
+    const closeLogModalBtn = document.getElementById("closeLogModal");
+    const logTitle = document.getElementById("logTitle");
+    const logSub = document.getElementById("logSub");
+    const logProfileGrid = document.getElementById("logProfileGrid");
+    const logChips = document.getElementById("logChips");
+    const logDetails = document.getElementById("logDetails");
+
+    // Close modal functionality
+    closeLogModalBtn.addEventListener("click", closeLogModal);
+    logModal.addEventListener("click", (e) => {
+      if (e.target === logModal) closeLogModal();
+    });
+
+    // Add click handlers to Details buttons
+    function addDetailsHandlers() {
+      const detailButtons = document.querySelectorAll(".btn-ghost");
+      detailButtons.forEach((btn, index) => {
+        btn.addEventListener("click", () => openLogModal(logs[index]));
+      });
+    }
+
+    function openLogModal(log) {
+      const grade = log.grade;
+      const time = log.time;
+      const city = log.city;
+      const code = log.code;
+      const svc = log.svc;
+      const status = log.status;
+
+      logTitle.textContent = `${svc} Log Details`;
+      logSub.textContent = `Event from ${city} • ${time}`;
+
+      logProfileGrid.innerHTML = `
+        <div class="profile-item"><span class="label">Grade</span>${grade}</div>
+        <div class="profile-item"><span class="label">Time</span>${time}</div>
+        <div class="profile-item"><span class="label">Service</span>${svc}</div>
+        <div class="profile-item"><span class="label">Location</span>${city}</div>
+        <div class="profile-item"><span class="label">Code</span>${code}</div>
+        <div class="profile-item"><span class="label">Status</span>${status}</div>
+      `;
+
+      // Generate relevant log chips based on the log type
+      const relevantChips = [];
+      if (grade === "A") relevantChips.push("High Priority", "Immediate Action");
+      else if (grade === "B") relevantChips.push("Medium Priority", "Review Required");
+      else relevantChips.push("Low Priority", "Monitor");
+
+      if (svc === "API") relevantChips.push("API Issue", "Endpoint Failure");
+      else if (svc === "AuthService") relevantChips.push("Authentication", "Security Event");
+
+      logChips.innerHTML = relevantChips.map(chip => `<div class="chip">${chip}</div>`).join("");
+
+      // Generate detailed log information
+      const logDetailsContent = [];
+      logDetailsContent.push(`[${time}] ${svc}: ${status}`);
+
+      if (grade === "A") {
+        logDetailsContent.push(`[${time}] ALERT: Critical ${svc} failure detected`);
+        logDetailsContent.push(`[${time}] SYSTEM: Escalating to security team`);
+        logDetailsContent.push(`[${time}] MONITOR: Increased surveillance activated`);
+      } else if (grade === "B") {
+        logDetailsContent.push(`[${time}] WARNING: ${svc} anomaly detected`);
+        logDetailsContent.push(`[${time}] SYSTEM: Logging increased for monitoring`);
+      } else {
+        logDetailsContent.push(`[${time}] INFO: ${svc} event logged`);
+        logDetailsContent.push(`[${time}] SYSTEM: Event archived for review`);
+      }
+
+      logDetails.innerHTML = logDetailsContent.map(detail => `<div class="log-row">• ${detail}</div>`).join("");
+
+      logModal.classList.add("open");
+    }
+
+    function closeLogModal() {
+      logModal.classList.remove("open");
+    }
+
+    // Initialize details handlers after initial render
+    addDetailsHandlers();
+
+    // Re-add handlers after filtering
+    const originalRender = render;
+    render = function(list) {
+      originalRender(list);
+      addDetailsHandlers();
+    };
+  </script>
+</body>
+</html>
+
